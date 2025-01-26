@@ -1,0 +1,35 @@
+[package]
+name = "cfddns"
+version = "1.0.0"
+edition = "2021"
+authors = ["Alex Martens <alex@thinglab.org>"]
+repository = "https://github.com/newAM/ddns_cloudflare"
+license = "MIT"
+
+[dependencies]
+anyhow = "1.0.95"
+# crates.io version does not have fix for
+# https://github.com/cloudflare/cloudflare-rs/pull/241
+# github version does not have a fix for
+# https://github.com/cloudflare/cloudflare-rs/pull/240
+cloudflare = { git = "https://github.com/newAM/cloudflare-rs.git", default-features = false, features = [
+  "default-tls",
+] }
+futures = "0.3.31"
+hashbrown = "0.15.2"
+itertools = "0.14.0"
+log = "0.4.22"
+nix = { version = "0.29.0", default-features = false, features = ["net"] }
+reqwest = { version = "0.12.9", default-features = false, features = [
+  "default-tls",
+] }
+serde = { version = "1.0.216", features = ["derive"] }
+serde_json = "1.0.134"
+systemd-journal-logger = "2.2.0"
+tokio = { version = "1.42.0", features = ["macros", "rt"] }
+url = { version = "2.5.4", features = ["serde"] }
+
+[dev-dependencies]
+assert_cmd = "2.0.16"
+predicates = "3.1.3"
+tempfile = "3.15.0"
