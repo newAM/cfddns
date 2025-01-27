@@ -38,6 +38,10 @@
 
       strictDeps = true;
 
+      preCheck = ''
+        export SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+      '';
+
       meta = {
         repository = "https://github.com/newAM/cfddns";
         license = [nixpkgs.lib.licenses.mit];
