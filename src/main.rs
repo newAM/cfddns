@@ -278,7 +278,6 @@ async fn main() -> anyhow::Result<()> {
     };
 
     if new_ipv4.is_none() && new_ipv6_prefix.is_none() {
-        log::info!("No changes to make");
         return Ok(());
     }
 
