@@ -210,7 +210,7 @@ dependencies = [
 [[package]]
 name = "cloudflare"
 version = "0.12.0"
-source = "git+https://github.com/newAM/cloudflare-rs.git#15afc6e2dc6c981675f7758f79e9c6cb9ea4e203"
+source = "git+https://github.com/newAM/cloudflare-rs.git#1a2598b3dc4250d58fd65af19d20130ac7d79c3f"
 dependencies = [
  "chrono",
  "http 0.2.12",
