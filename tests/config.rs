@@ -19,6 +19,7 @@ fn no_config_file() {
 fn bad_config_file() {
     let mut config_file: NamedTempFile = NamedTempFile::new().unwrap();
     config_file.write_all(&[0xFF]).unwrap();
+    config_file.flush().unwrap();
 
     main_bin().args([config_file.path()]).assert().stderr(
         r#"Error: Failed to deserialize config file
@@ -41,6 +42,7 @@ fn deny_unknown_fields() {
 
     let mut config_file: NamedTempFile = NamedTempFile::new().unwrap();
     config_file.write_all(MOCK_CONFIG.as_bytes()).unwrap();
+    config_file.flush().unwrap();
 
     main_bin()
         .args([config_file.path()])
@@ -65,6 +67,7 @@ fn no_client_secret() {
 
     let mut config_file: NamedTempFile = NamedTempFile::new().unwrap();
     config_file.write_all(MOCK_CONFIG.as_bytes()).unwrap();
+    config_file.flush().unwrap();
 
     main_bin().args([config_file.path()]).assert().stderr(
         r#"Error: Failed to read cloudflare API token from environment variable 'CLOUDFLARE_TOKEN'
@@ -87,6 +90,7 @@ fn no_zones_early_return() {
 
     let mut config_file: NamedTempFile = NamedTempFile::new().unwrap();
     config_file.write_all(MOCK_CONFIG.as_bytes()).unwrap();
+    config_file.flush().unwrap();
 
     main_bin()
         .args([config_file.path()])
@@ -112,6 +116,7 @@ fn no_ipv4_or_ipv6_early_return() {
 
     let mut config_file: NamedTempFile = NamedTempFile::new().unwrap();
     config_file.write_all(MOCK_CONFIG.as_bytes()).unwrap();
+    config_file.flush().unwrap();
 
     main_bin()
         .args([config_file.path()])
@@ -137,6 +142,7 @@ fn missing_history() {
 
     let mut config_file: NamedTempFile = NamedTempFile::new().unwrap();
     config_file.write_all(MOCK_CONFIG.as_bytes()).unwrap();
+    config_file.flush().unwrap();
 
     main_bin()
         .args([config_file.path()])
