@@ -11,7 +11,9 @@ anyhow = "1.0.95"
 # crates.io version does not have fix for:
 # https://github.com/cloudflare/cloudflare-rs/pull/241
 # https://github.com/cloudflare/cloudflare-rs/pull/240
-cloudflare = { git = "https://github.com/cloudflare/cloudflare-rs.git", default-features = false, features = [
+# upstream does not have a fix for:
+# https://github.com/cloudflare/cloudflare-rs/issues/251
+cloudflare = { git = "https://github.com/newAM/cloudflare-rs.git", default-features = false, features = [
   "default-tls",
 ] }
 futures = "0.3.31"
