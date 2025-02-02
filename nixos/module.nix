@@ -79,7 +79,7 @@ in {
                         default = null;
                         type = lib.types.nullOr lib.types.bool;
                       };
-                      eui64 = lib.mkOption {
+                      suffix = lib.mkOption {
                         default = null;
                         description = ''
                           Record IPv6 suffix.

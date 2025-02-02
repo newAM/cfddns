@@ -165,7 +165,7 @@ async fn update_zone(
             }
         }
 
-        if let (Some(prefix), Some(suffix)) = (ipv6_prefix, &record_config.eui64) {
+        if let (Some(prefix), Some(suffix)) = (ipv6_prefix, &record_config.suffix) {
             if let Some(record_id) = record_maps.aaaa.get(record_name) {
                 let content: Ipv6Addr = prefix | suffix;
 

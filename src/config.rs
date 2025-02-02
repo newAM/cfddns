@@ -19,10 +19,10 @@ pub struct RecordConfig {
     pub ttl: Option<u32>,
     /// Whether the record is proxied by Cloudflare
     pub proxied: Option<bool>,
-    /// EUI-64 suffix for AAAA record updates
+    /// Static suffix for AAAA record updates
     ///
     /// AAAA records are not updated if None.
-    pub eui64: Option<Ipv6Addr>,
+    pub suffix: Option<Ipv6Addr>,
 }
 
 #[derive(Deserialize)]

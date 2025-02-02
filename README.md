@@ -83,7 +83,7 @@ below is an example of my configuration.
           records = [
             {
               name = "service.example.com";
-              eui64 = "::aaaa:aaaa:aaaa:aaaa";
+              suffix = "::aaaa:aaaa:aaaa:aaaa";
             }
           ];
         }
