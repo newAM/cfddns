@@ -5,8 +5,8 @@ mod ip;
 
 use anyhow::Context as _;
 use cloudflare::{
-    endpoints::{dns, zone},
-    framework::{async_api::Client, SearchMatch},
+    endpoints::{dns::dns, zones::zone},
+    framework::{client::async_api::Client, SearchMatch},
 };
 use config::{save_history, Config, History, ZoneConfig};
 use hashbrown::HashMap;

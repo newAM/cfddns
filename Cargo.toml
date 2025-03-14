@@ -8,7 +8,7 @@ license = "MIT"
 
 [dependencies]
 anyhow = "1.0.95"
-cloudflare = { version = "0.13", default-features = false, features = [
+cloudflare = { version = "0.14", default-features = false, features = [
   "default-tls",
 ] }
 futures = "0.3.31"
