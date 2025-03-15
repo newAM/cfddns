@@ -1,7 +1,7 @@
 [package]
 name = "cfddns"
 version = "1.0.0"
-edition = "2021"
+edition = "2024"
 authors = ["Alex Martens <alex@thinglab.org>"]
 repository = "https://github.com/newAM/ddns_cloudflare"
 license = "MIT"

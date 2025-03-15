@@ -6,9 +6,9 @@ mod ip;
 use anyhow::Context as _;
 use cloudflare::{
     endpoints::{dns::dns, zones::zone},
-    framework::{client::async_api::Client, SearchMatch},
+    framework::{SearchMatch, client::async_api::Client},
 };
-use config::{save_history, Config, History, ZoneConfig};
+use config::{Config, History, ZoneConfig, save_history};
 use hashbrown::HashMap;
 use ip::{http_get_ipv4, http_get_ipv6_prefix, interface_ipv4, interface_ipv6_prefix};
 use serde::Deserialize;
