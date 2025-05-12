@@ -200,7 +200,7 @@ mod tests {
     #[test]
     fn restore_history_file_creation() {
         let hist_dir: TempDir = TempDir::new().unwrap();
-        let mut hist_file_path = hist_dir.into_path();
+        let mut hist_file_path = hist_dir.keep();
         hist_file_path.push("history.json");
 
         assert!(!hist_file_path.exists());
@@ -216,7 +216,7 @@ mod tests {
     #[test]
     fn save_restore_history() {
         let hist_dir: TempDir = TempDir::new().unwrap();
-        let mut hist_file_path = hist_dir.into_path();
+        let mut hist_file_path = hist_dir.keep();
         hist_file_path.push("history.json");
 
         // file creation
