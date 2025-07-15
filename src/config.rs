@@ -111,8 +111,7 @@ impl Config {
         let cloudflare_token: String =
             std::env::var(CLOUDFLARE_TOKEN_ENV_VAR).with_context(|| {
                 format!(
-                    "Failed to read cloudflare API token from environment variable '{}'",
-                    CLOUDFLARE_TOKEN_ENV_VAR
+                    "Failed to read cloudflare API token from environment variable '{CLOUDFLARE_TOKEN_ENV_VAR}'"
                 )
             })?;
 
