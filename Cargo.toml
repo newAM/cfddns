@@ -12,7 +12,7 @@ cloudflare = { version = "0.14", default-features = false, features = [
   "default-tls",
 ] }
 futures = "0.3.31"
-hashbrown = "0.15.2"
+hashbrown = "0.15.5"
 itertools = "0.14.0"
 log = "0.4.22"
 nix = { version = "0.30.0", default-features = false, features = ["net"] }
