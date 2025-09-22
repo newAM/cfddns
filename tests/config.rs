@@ -28,6 +28,8 @@ Caused by:
     expected value at line 1 column 1
 "#,
     );
+
+    config_file.close().unwrap();
 }
 #[test]
 fn deny_unknown_fields() {
@@ -53,6 +55,8 @@ fn deny_unknown_fields() {
 Caused by:
     unknown field `some_extra_field`, expected one of"#,
         ));
+
+    config_file.close().unwrap();
 }
 
 #[test]
@@ -76,6 +80,8 @@ Caused by:
     environment variable not found
 "#,
     );
+
+    config_file.close().unwrap();
 }
 
 #[test]
@@ -97,6 +103,8 @@ fn no_zones_early_return() {
         .env("CLOUDFLARE_TOKEN", "AAA")
         .assert()
         .code(0);
+
+    config_file.close().unwrap();
 }
 
 #[test]
@@ -123,6 +131,8 @@ fn no_ipv4_or_ipv6_early_return() {
         .env("CLOUDFLARE_TOKEN", "AAA")
         .assert()
         .code(0);
+
+    config_file.close().unwrap();
 }
 
 #[test]
@@ -156,4 +166,6 @@ Caused by:
     1: No such file or directory (os error 2)
 "#,
         );
+
+    config_file.close().unwrap();
 }
