@@ -52,6 +52,13 @@
 
     mkCargoArtifacts = pkgs: (crane.mkLib pkgs).buildDepsOnly (mkCommonArgs pkgs);
 
+    mkPackage = pkgs:
+      (crane.mkLib pkgs).buildPackage (
+        nixpkgs.lib.recursiveUpdate (mkCommonArgs pkgs) {
+          cargoArtifacts = mkCargoArtifacts pkgs;
+        }
+      );
+
     treefmtEval = pkgs:
       treefmt.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
@@ -88,11 +95,7 @@
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
       in {
-        default = (crane.mkLib pkgs).buildPackage (
-          nixpkgs.lib.recursiveUpdate (mkCommonArgs pkgs) {
-            cargoArtifacts = mkCargoArtifacts pkgs;
-          }
-        );
+        default = mkPackage pkgs;
       }
     );
 
@@ -128,7 +131,7 @@
     );
 
     overlays.default = final: prev: {
-      cfddns = self.packages.${prev.system}.default;
+      cfddns = mkPackage prev;
     };
 
     nixosModules.default = import ./nixos/module.nix;

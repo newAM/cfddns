@@ -11,6 +11,8 @@ in {
   options.services.cfddns = {
     enable = lib.mkEnableOption "Cloudflare Dynamic DNS";
 
+    package = lib.mkPackageOption pkgs "cfddns" {};
+
     settings = lib.mkOption {
       type = lib.types.submodule {
         freeformType = lib.types.attrsOf settingsFormat.type;
@@ -160,7 +162,7 @@ in {
       serviceConfig = {
         Type = "idle";
         KillSignal = "SIGINT";
-        ExecStart = "${pkgs.cfddns}/bin/cfddns ${configurationFile}";
+        ExecStart = "${lib.getExe cfg.package} ${configurationFile}";
         EnvironmentFile = cfg.environmentFiles;
 
         # hardening
@@ -208,5 +210,5 @@ in {
     };
   };
 
-  meta.maintainers = pkgs.cfddns.meta.maintainers;
+  meta.maintainers = [lib.maintainers.newam];
 }
