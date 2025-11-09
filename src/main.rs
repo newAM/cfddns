@@ -9,10 +9,12 @@ use cloudflare::{
     framework::{SearchMatch, client::async_api::Client},
 };
 use config::{Config, History, ZoneConfig, save_history};
-use hashbrown::HashMap;
 use ip::{http_get_ipv4, http_get_ipv6_prefix, interface_ipv4, interface_ipv6_prefix};
 use serde::Deserialize;
-use std::net::{Ipv4Addr, Ipv6Addr};
+use std::{
+    collections::HashMap,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 
 #[derive(Deserialize)]
 #[allow(dead_code)]
