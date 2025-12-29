@@ -90,7 +90,7 @@ fn no_zones_early_return() {
         "a_interface": "bond-wan",
         "aaaa_interface": "br-lan",
         "zones": [],
-        "history_path": "/tmp/rmme",
+        "history_path": "/tmp/rmme_no_zones_early_return",
         "log_level": "off"
     }"#;
 
@@ -118,7 +118,7 @@ fn no_ipv4_or_ipv6_early_return() {
                 "records": []
             }
         ],
-        "history_path": "/tmp/rmme",
+        "history_path": "/tmp/rmme_no_ipv4_or_ipv6_early_return",
         "log_level": "off"
     }"#;
 
