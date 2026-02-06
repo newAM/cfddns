@@ -7,7 +7,7 @@ repository = "https://github.com/newAM/ddns_cloudflare"
 license = "MIT"
 
 [dependencies]
-anyhow = "1.0.100"
+anyhow = "1.0.101"
 cloudflare = { version = "0.14.0", default-features = false, features = [
   "default-tls",
 ] }
