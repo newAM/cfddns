@@ -1,44 +1,32 @@
 #![feature(ip)]
+#![forbid(unsafe_code)]
 
+mod cloudflare;
 mod config;
 mod ip;
 
-use anyhow::Context as _;
-use cloudflare::{
-    endpoints::{dns::dns, zones::zone},
-    framework::{SearchMatch, client::async_api::Client},
+use crate::cloudflare::{
+    Client, DnsContent, ListDnsRecordsParams, ListZonesParams, OrderDirection, SearchMatch, Status,
+    UpdateDnsRecordParams,
 };
+use anyhow::Context as _;
 use config::{Config, History, ZoneConfig, save_history};
 use ip::{http_get_ipv4, http_get_ipv6_prefix, interface_ipv4, interface_ipv6_prefix};
-use serde::Deserialize;
 use std::{
     collections::HashMap,
     net::{Ipv4Addr, Ipv6Addr},
 };
 
-#[derive(Deserialize)]
-#[allow(dead_code)]
-struct PageInfo {
-    count: u32,
-    page: u32,
-    per_page: u32,
-    total_count: u32,
-    total_pages: u32,
-}
-
-/// Given a zone name return the zone identifier.
 async fn zone_id(name: &str, api_client: &Client) -> anyhow::Result<String> {
-    let endpoint = zone::ListZones {
-        params: zone::ListZonesParams {
-            name: Some(name.to_string()),
-            status: Some(zone::Status::Active),
-            search_match: Some(SearchMatch::All),
-            ..Default::default()
-        },
+    let params = ListZonesParams {
+        name: Some(name.to_string()),
+        status: Some(Status::Active),
+        search_match: Some(SearchMatch::All),
+        ..Default::default()
     };
 
     let response = api_client
-        .request(&endpoint)
+        .list_zones(&params)
         .await
         .context("Failed to list zones")?;
 
@@ -67,24 +55,21 @@ async fn zone_record_map(zone_identifier: &str, api_client: &Client) -> anyhow::
 
     let mut page: u32 = 1;
     loop {
-        let endpoint = dns::ListDnsRecords {
-            zone_identifier,
-            params: dns::ListDnsRecordsParams {
-                direction: Some(cloudflare::framework::OrderDirection::Ascending),
-                page: Some(page),
-                ..Default::default()
-            },
+        let params = ListDnsRecordsParams {
+            direction: Some(OrderDirection::Asc),
+            page: Some(page),
+            ..Default::default()
         };
 
         let response = api_client
-            .request(&endpoint)
+            .list_dns_records(zone_identifier, &params)
             .await
             .context("Failed to list existing DNS records")?;
 
         let a_record_id_map_per_page: HashMap<String, String> = response
             .result
             .iter()
-            .filter(|record| matches!(record.content, dns::DnsContent::A { content: _ }))
+            .filter(|record| matches!(record.content, DnsContent::A { content: _ }))
             .map(|record| (record.name.clone(), record.id.clone()))
             .collect();
         a_record_id_map.extend(a_record_id_map_per_page);
@@ -92,16 +77,13 @@ async fn zone_record_map(zone_identifier: &str, api_client: &Client) -> anyhow::
         let aaaa_record_id_map_per_page: HashMap<String, String> = response
             .result
             .iter()
-            .filter(|record| matches!(record.content, dns::DnsContent::AAAA { content: _ }))
+            .filter(|record| matches!(record.content, DnsContent::AAAA { content: _ }))
             .map(|record| (record.name.clone(), record.id.clone()))
             .collect();
         aaaa_record_id_map.extend(aaaa_record_id_map_per_page);
 
-        if let Some(result_info) = response.result_info {
-            let page_info: PageInfo = serde_json::from_value(result_info)
-                .context("Unexpected response from Cloudflare's list DNS records API")?;
-
-            if page_info.total_pages == page {
+        if let Some(info) = response.result_info {
+            if info.total_pages == page {
                 break;
             }
 
@@ -140,7 +122,8 @@ async fn update_zone(
             format!("Failed to list records for zone '{zone_name}' id '{zone_identifier}'")
         })?;
 
-    let mut records_to_update: Vec<dns::UpdateDnsRecord> = Vec::with_capacity(config.records.len());
+    let mut updates: Vec<(String, String, UpdateDnsRecordParams<'_>)> =
+        Vec::with_capacity(config.records.len());
 
     let mut errors: u32 = 0;
 
@@ -151,16 +134,16 @@ async fn update_zone(
             if let Some(record_id) = record_maps.a.get(record_name) {
                 log::debug!("Update {record_name} A to {content}");
 
-                records_to_update.push(dns::UpdateDnsRecord {
-                    zone_identifier: zone_identifier.as_str(),
-                    identifier: record_id.as_str(),
-                    params: dns::UpdateDnsRecordParams {
+                updates.push((
+                    zone_identifier.clone(),
+                    record_id.clone(),
+                    UpdateDnsRecordParams {
                         ttl: record_config.ttl,
                         proxied: record_config.proxied,
                         name: record_config.name.as_str(),
-                        content: dns::DnsContent::A { content },
+                        content: DnsContent::A { content },
                     },
-                });
+                ));
             } else {
                 log::error!("No A record exists for {record_name}");
                 errors = errors.saturating_add(1);
@@ -173,16 +156,16 @@ async fn update_zone(
 
                 log::debug!("Update {record_name} AAAA to {content}");
 
-                records_to_update.push(dns::UpdateDnsRecord {
-                    zone_identifier: zone_identifier.as_str(),
-                    identifier: record_id.as_str(),
-                    params: dns::UpdateDnsRecordParams {
+                updates.push((
+                    zone_identifier.clone(),
+                    record_id.clone(),
+                    UpdateDnsRecordParams {
                         ttl: record_config.ttl,
                         proxied: record_config.proxied,
                         name: record_config.name.as_str(),
-                        content: dns::DnsContent::AAAA { content },
+                        content: DnsContent::AAAA { content },
                     },
-                });
+                ));
             } else {
                 log::error!("No AAAA record exists for {record_name}");
                 errors = errors.saturating_add(1);
@@ -190,9 +173,9 @@ async fn update_zone(
         }
     }
 
-    let requests: Vec<_> = records_to_update
+    let requests: Vec<_> = updates
         .iter()
-        .map(|endpoint| api_client.request(endpoint))
+        .map(|(zid, rid, params)| api_client.update_dns_record(zid, rid, params))
         .collect();
 
     let results: Vec<_> = futures::future::join_all(requests).await;
@@ -211,8 +194,7 @@ async fn update_zone(
     Ok(())
 }
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> anyhow::Result<()> {
+async fn inner() -> anyhow::Result<()> {
     let config: Config = Config::from_args_os()?;
 
     if config.zones.is_empty() {
@@ -311,4 +293,13 @@ async fn main() -> anyhow::Result<()> {
         },
     )
     .context("Failed to save history")
+}
+
+#[tokio::main(flavor = "current_thread")]
+async fn main() -> anyhow::Result<()> {
+    let result = inner().await;
+    if let Err(e) = &result {
+        log::error!("{e:#}");
+    }
+    result
 }

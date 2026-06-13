@@ -1,5 +1,5 @@
+use crate::cloudflare::Client;
 use anyhow::Context as _;
-use cloudflare::framework::client::async_api::Client;
 use serde::{Deserialize, Serialize};
 use std::{
     ffi::OsString,
@@ -115,14 +115,8 @@ impl Config {
                 )
             })?;
 
-        let cloudflare_client: Client = Client::new(
-            cloudflare::framework::auth::Credentials::UserAuthToken {
-                token: cloudflare_token,
-            },
-            cloudflare::framework::client::ClientConfig::default(),
-            cloudflare::framework::Environment::Production,
-        )
-        .context("Failed to create Cloudflare API client")?;
+        let cloudflare_client: Client =
+            Client::new(cloudflare_token).context("Failed to create Cloudflare API client")?;
 
         let history: History = restore_history(&config.history_path)?;
 
